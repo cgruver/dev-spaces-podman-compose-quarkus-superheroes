@@ -1,0 +1,134 @@
+schemaVersion: 2.2.0
+attributes:
+  controller.devfile.io/storage-type: per-workspace
+metadata:
+  name: "Quarkus Super Heroes Dev Spaces - Podman Compose"
+projects:
+- name: dev-spaces-podman-compose-quarkus-superheroes
+  git:
+    checkoutFrom:
+      remote: origin
+      revision: main
+    remotes:
+      origin: https://github.com/cgruver/dev-spaces-podman-compose-quarkus-superheroes.git
+- name: quarkus-super-heroes
+  git:
+    checkoutFrom:
+      remote: origin
+      revision: main
+    remotes:
+      origin: https://github.com/quarkusio/quarkus-super-heroes.git
+components:
+- name: dev-tools
+  attributes:
+    container-overrides:
+      securityContext:
+        privileged: true
+  container: 
+    image: quay.io/cgruver0/che/dev-workspace-quarkus-super-heroes:latest
+    memoryRequest: 1Gi
+    memoryLimit: 12Gi
+    cpuRequest: 500m
+    cpuLimit: 4000m
+    mountSources: true
+    sourceMapping: /projects
+    env:
+    - name: SHELL
+      value: "/bin/zsh"
+    - name: VSCODE_DEFAULT_WORKSPACE
+      value: "/projects/dev-spaces-podman-compose-quarkus-superheroes/super-heroes.code-workspace"
+    - name: DOCKER_HOST
+      value: "unix:///tmp/podman.sock"
+    - name: CONTAINER_HOST
+      value: "unix:///tmp/podman.sock"
+    - name: TESTCONTAINERS_RYUK_DISABLED
+      value: "true" 
+    - name: TESTCONTAINERS_CHECKS_DISABLE
+      value: "true"
+    - name: DOCKER_SOCK
+      value: /tmp/podman.sock
+    - name: DOCKER_CMD
+      value: podman
+    volumeMounts:
+    - name: m2
+      path: /home/user/.m2
+    - name: npm
+      path: /home/user/.npm
+    endpoints:
+      - name: https-ui
+        targetPort: 8080
+        exposure: public
+        protocol: https
+      - name: https-heroes
+        targetPort: 8081
+        exposure: public
+        protocol: https
+      - name: https-villains
+        targetPort: 8082
+        exposure: public
+        protocol: https
+      - name: https-fights
+        targetPort: 8083
+        exposure: public
+        protocol: https
+      - name: https-stats
+        targetPort: 8084
+        exposure: public
+        protocol: https
+      - name: debug-ui
+        targetPort: 5005
+        exposure: internal
+      - name: debug-villains
+        targetPort: 5006
+        exposure: internal
+      - name: debug-heroes
+        targetPort: 5007
+        exposure: internal
+      - name: debug-fights
+        targetPort: 5008
+        exposure: internal
+      - name: debug-stats
+        targetPort: 5009
+        exposure: internal
+      - name: node-port
+        targetPort: 4200
+        exposure: internal
+- name: oc-cli
+  container:
+    args:
+      - '-c'
+      - >-
+        mkdir -p /projects/bin && cp /usr/bin/oc /projects/bin/oc && cp /usr/bin/kubectl /projects/bin/kubectl
+    command:
+      - /bin/bash
+    image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+    sourceMapping: /projects
+    mountSources: true
+    memoryRequest: 128M
+    memoryLimit: 256M
+- volume:
+    size: 4Gi
+  name: projects
+- volume:
+    size: 2Gi
+  name: m2
+- volume:
+    size: 2Gi
+  name: npm
+commands:
+- apply:
+    component: oc-cli
+    label: Copy OpenShift CLI
+  id: cp-oc-cli
+- exec:
+    label: "Start Podman Service"
+    component: dev-tools
+    workingDir: ${PROJECTS_ROOT}
+    commandLine: "unset CONTAINER_HOST && podman --log-level debug system service --time=0 unix:///tmp/podman.sock"
+    group:
+      kind: run
+      isDefault: true
+  id: start-podman
+events:
+  preStart:
+    - cp-oc-cli

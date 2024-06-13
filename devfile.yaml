@@ -2,7 +2,7 @@ schemaVersion: 2.2.0
 attributes:
   controller.devfile.io/storage-type: per-workspace
 metadata:
-  name: "Quarkus Super Heroes Dev Spaces - Podman Compose"
+  name: "Quarkus Super Heroes Dev Spaces with Podman Compose"
 projects:
 - name: dev-spaces-podman-compose-quarkus-superheroes
   git:
@@ -49,6 +49,8 @@ components:
       value: /tmp/podman.sock
     - name: DOCKER_CMD
       value: podman
+    - name: FIGHTS_SERVICE_PORT
+      value: "8080"
     volumeMounts:
     - name: m2
       path: /home/user/.m2
@@ -60,19 +62,27 @@ components:
         exposure: public
         protocol: https
       - name: https-heroes
-        targetPort: 8081
-        exposure: public
-        protocol: https
-      - name: https-villains
-        targetPort: 8082
-        exposure: public
-        protocol: https
-      - name: https-fights
         targetPort: 8083
         exposure: public
         protocol: https
-      - name: https-stats
+      - name: https-villains
         targetPort: 8084
+        exposure: public
+        protocol: https
+      - name: https-fights
+        targetPort: 8082
+        exposure: public
+        protocol: https
+      - name: https-stats
+        targetPort: 8085
+        exposure: public
+        protocol: https
+      - name: https-narration
+        targetPort: 8087
+        exposure: public
+        protocol: https
+      - name: https-locations
+        targetPort: 8089
         exposure: public
         protocol: https
       - name: debug-ui

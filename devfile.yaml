@@ -37,16 +37,16 @@ components:
       value: "/bin/zsh"
     - name: VSCODE_DEFAULT_WORKSPACE
       value: "/projects/dev-spaces-podman-compose-quarkus-superheroes/super-heroes.code-workspace"
-    - name: DOCKER_HOST
-      value: "unix:///tmp/podman.sock"
-    - name: CONTAINER_HOST
-      value: "unix:///tmp/podman.sock"
+    # - name: DOCKER_HOST
+    #   value: "unix:///tmp/podman.sock"
+    # - name: CONTAINER_HOST
+    #   value: "unix:///tmp/podman.sock"
     - name: TESTCONTAINERS_RYUK_DISABLED
       value: "true" 
     - name: TESTCONTAINERS_CHECKS_DISABLE
       value: "true"
-    - name: DOCKER_SOCK
-      value: /tmp/podman.sock
+    # - name: DOCKER_SOCK
+    #   value: /tmp/podman.sock
     - name: DOCKER_CMD
       value: podman
     - name: FIGHTS_SERVICE_PORT
